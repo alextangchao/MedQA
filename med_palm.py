@@ -13,13 +13,10 @@ def run_palm(question):
         "candidate_count": 1,
         "max_output_tokens": 1024,
         "temperature": 0.9,
-        "top_p": 1
+        "top_p": 1,
     }
     model = TextGenerationModel.from_pretrained("text-bison")
-    response = model.predict(
-        question,
-        **parameters
-    )
+    response = model.predict(question, **parameters)
     # print(response)
     print(f"Response from Model:\n{response.text}\n\n")
     return response.text
@@ -41,15 +38,18 @@ def load_data(n):
 def save_data(questions, results, answers):
     print("Saving data...")
 
-    df = pandas.DataFrame({"question": questions, "predict": results, "answer": answers})
-    df.to_csv("output/med-palm.csv", encoding="utf-8", index=False)
+    df = pandas.DataFrame(
+        {"question": questions, "predict": results, "answer": answers}
+    )
+    df.to_csv(f"output/med-palm-{num}.csv", encoding="utf-8", index=False)
 
 
 if __name__ == "__main__":
-    question_list, answer_list = load_data(10)
+    num = 100
+    question_list, answer_list = load_data(num)
 
     result_list = []
-    for i,question in enumerate(question_list):
+    for i, question in enumerate(question_list):
         print(f"Question {i}:")
         result = run_palm(question)
         result_list.append(result)

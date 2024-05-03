@@ -2,15 +2,6 @@ import pandas
 import re
 
 
-def save_data(questions, results, answers):
-    print("Saving data...")
-
-    df = pandas.DataFrame(
-        {"question": questions, "predict": results, "answer": answers}
-    )
-    df.to_csv(f"output/med-palm-{num}.csv", encoding="utf-8", index=False)
-
-
 def print_arr(arr):
     print("-" * 20)
     for ele in arr:
@@ -18,28 +9,37 @@ def print_arr(arr):
 
 
 if __name__ == "__main__":
-    df = pandas.read_csv("data/test_set.csv")
+    df = pandas.read_csv("data/raw_test_set.csv")
     print(list(df))
     # df = df.head()
     print(df)
-    # questions = df.get("question").tolist()
-    # answers = df.get("answer").tolist()
 
-    re_pattern = re.compile(r"\s*Question:\s*(.*)\s*URL:\s*(.*)\s*Answer:\s*(.*)\s*",flags=re.DOTALL)
+    question_pattern = re.compile(
+        r"\s*Question:\s*(.*)\s*URL:\s*(.*)\s*Answer:\s*(.*)\s*"
+    )
+    answer_pattern = re.compile(
+        r"\s*Question:\s*(.*)\s*URL:\s*(.*)\s*Answer:\s*(.*)\s*", flags=re.DOTALL
+    )
 
     questions = []
     url = []
     answers = []
 
     for values in df["Answer"]:
-        m = re_pattern.fullmatch(values)
-        if m:
-            questions.append(m.group(1))
-            url.append(m.group(2))
-            answers.append(m.group(3))
+        question_match = question_pattern.match(values)
+        answer_match = answer_pattern.match(values)
+        if question_match and answer_match:
+            questions.append(question_match.group(1))
+            url.append(question_match.group(2))
+            answer_text = answer_match.group(3)
+            if answer_text[-2:] == " \n":
+                answers.append(answer_text[:-2])
+            else:
+                print(answer_text)
         else:
             print("Error:")
-            print(m)
+            print(question_match)
+            print(answer_match)
             print(values)
 
     # print_arr(questions)
